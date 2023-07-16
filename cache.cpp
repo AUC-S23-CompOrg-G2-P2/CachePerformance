@@ -1,5 +1,5 @@
 #include <iostream>
-#include  <iomanip>
+#include <iomanip>
 
 using namespace std;
 
@@ -76,7 +76,7 @@ cacheResType cacheSimFA(unsigned int addr)
 }
 char *msg[2] = {"Miss","Hit"};
 
-#define		NO_OF_Iterations	100		// CHange to 1,000,000
+#define		NO_OF_Iterations	100		// Change to 1,000,000
 int main()
 {
 	unsigned int hit = 0;
