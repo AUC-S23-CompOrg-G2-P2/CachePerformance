@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 
@@ -17,15 +18,15 @@ struct CacheLine{
 		valid = false;
 		tagAndIndex = 0;
 	}
-}
+};
 
 class Cache{
 	public:
-		Cache(int lineSizeInBytes =0, int ways = 0){
-			lineSizeInBytes = lineSizeInBytes;
-			ways = ways;
+		Cache(int lineSizeInBytes, int numberOfWays){
+			lineSize = lineSizeInBytes;
+			ways = numberOfWays;
 			setSizeInBytes = lineSizeInBytes*8*ways;
-			numberOfSets = CACHE_SIZE/setSizeInBytes;
+			numberOfSets = (CACHE_SIZE)/setSizeInBytes;
 			for(int i = 0; i<numberOfSets;i++){
 				// initialise each set
 				vector<CacheLine> mySet;
@@ -44,8 +45,8 @@ class Cache{
 		// Another special case is when ways = 1, in which case the set is direct mapped.
 		bool read(unsigned int addr){
 			// Someone pls check my math
-			unsigned int index = (addr/lineSizeInBytes)%numberOfSets;
-			unsigned int tag = addr/(lineSizeInBytes*numberOfSets);
+			unsigned int index = (addr/lineSize)%numberOfSets;
+			unsigned int tag = addr/(lineSize*numberOfSets);
 			// special case for fully associative
 			if(numberOfSets == 1){
 				index = 0;
@@ -87,9 +88,9 @@ class Cache{
 		vector<vector<CacheLine>> myCache;
 		int setSizeInBytes;
 		int numberOfSets;
-		int lineSizeInBytes;
+		int lineSize;
 		int ways;
-}
+};
 
 /* The following implements a random number generator */
 unsigned int m_w = 0xABABAB55;    /* must not be zero, nor 0x464fffff */
@@ -157,9 +158,9 @@ cacheResType cacheSimFA(unsigned int addr)
 	// The current implementation assumes there is no cache; so, every transaction is a miss
 	return MISS;
 }
-char *msg[2] = {"Miss","Hit"};
+const char *msg[2] = {"Miss","Hit"};
 
-#define		NO_OF_Iterations	100		// Change to 1,000,000
+#define		NO_OF_Iterations	1000000	// Change to 1,000,000
 int main()
 {
 	vector<Cache> experiment1;
@@ -167,13 +168,12 @@ int main()
 	vector<Cache> experiment3;
 	// experiment one will run for every possible line size (16 B, 32 B, 64 B, 128 B) with number of ways being 4
 	for(int i = 0; i<4;i++){
-		Cache myCache(16*(2^i),4);
-		experiment1.push_back(myCache);
+		int lineSize = 16*pow(2,i);
+		experiment1.push_back(Cache(16*pow(2,i),4));
 	}
 	// experiment two will run for every possible number of ways (1,2, 4, 8, 16) with line size being 32 B
 	for(int i = 0; i<5;i++){
-		Cache myCache(32,2^i);
-		experiment2.push_back(myCache);
+		experiment2.push_back(Cache(32,pow(2,i)));
 	}
 	// Now we will plot the hit ratio against line size for experiment 1
 	for(int i = 0; i<experiment1.size();i++){
@@ -184,11 +184,12 @@ int main()
 		for(int inst=0;inst<NO_OF_Iterations;inst++)
 		{
 			addr = memGen2();
-			r = experiment1[i].read(addr);
+			// generate a random memmory address using one of the memGen functions
+			r = static_cast<cacheResType>(experiment1[i].read(addr));
 			if(r == HIT) hit++;
-			cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
+			//cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
 		}
-		cout << "Hit ratio of experiment 1 line size "<< 16*(2^i)" B = " << (100*hit/NO_OF_Iterations)<< "%"<<endl;
+		cout << "Hit ratio of experiment 1 line size "<< 16*pow(2,i)<<" B = " << (100*hit/NO_OF_Iterations)<< "%"<<endl;
 	}
 	// Now we will plot the hit ratio against number of ways for experiment 2
 	for(int i = 0; i<experiment2.size();i++){
@@ -199,11 +200,11 @@ int main()
 		for(int inst=0;inst<NO_OF_Iterations;inst++)
 		{
 			addr = memGen2();
-			r = experiment2[i].read(addr);
+			r = static_cast<cacheResType>(experiment2[i].read(addr));
 			if(r == HIT) hit++;
-			cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
+			//cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
 		}
-		cout << "Hit ratio of experiment 2 number of ways "<< 2^i << " = " << (100*hit/NO_OF_Iterations)<< "%"<<endl;
+		cout << "Hit ratio of experiment 2 number of ways "<< (int)(pow(2,i)) << " = " << (100*hit/NO_OF_Iterations)<< "%"<<endl;
 	}
 	cout << "--------------------------------------------------\n";
 	unsigned int hit = 0;
@@ -217,7 +218,7 @@ int main()
 		addr = memGen2();
 		r = cacheSimDM(addr);
 		if(r == HIT) hit++;
-		cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
+		//cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
 	}
 	cout << "Hit ratio = " << (100*hit/NO_OF_Iterations)<< endl;
 }
