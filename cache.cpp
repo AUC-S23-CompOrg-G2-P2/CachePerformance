@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <vector>
 
 using namespace std;
 
@@ -8,6 +9,87 @@ using namespace std;
 #define		CACHE_SIZE		(64*1024)
 
 enum cacheResType {MISS=0, HIT=1};
+
+struct CacheLine{
+	bool valid;
+	unsigned int tagAndIndex;
+	CacheLine(){
+		valid = false;
+		tagAndIndex = 0;
+	}
+}
+
+class Cache{
+	public:
+		Cache(int lineSizeInBytes =0, int ways = 0){
+			lineSizeInBytes = lineSizeInBytes;
+			ways = ways;
+			setSizeInBytes = lineSizeInBytes*8*ways;
+			numberOfSets = CACHE_SIZE/setSizeInBytes;
+			for(int i = 0; i<numberOfSets;i++){
+				// initialise each set
+				vector<CacheLine> mySet;
+				for(int j = 0; j<ways;j++){
+					// initialise each line
+					CacheLine myLine;
+					mySet.push_back(myLine);
+				}
+				myCache.push_back(mySet);
+			}
+
+		}
+		// A function that will attempt to read a given DRAM address from the cache. 
+		// If it is found return true, else add it to its correct place in myCache and return false
+		// A spceial case is when numberOfSets = 1, in which case the set is fully associative and index is 0
+		// Another special case is when ways = 1, in which case the set is direct mapped.
+		bool read(unsigned int addr){
+			// Someone pls check my math
+			unsigned int index = (addr/lineSizeInBytes)%numberOfSets;
+			unsigned int tag = addr/(lineSizeInBytes*numberOfSets);
+			// special case for fully associative
+			if(numberOfSets == 1){
+				index = 0;
+			}
+			// special case for direct mapped
+			if(ways == 1){
+				if(myCache[index][0].valid && myCache[index][0].tagAndIndex == tag){
+					return true;
+				}
+				else{
+					// miss due to cold start or conflict
+					myCache[index][0].valid = true;
+					myCache[index][0].tagAndIndex = tag;
+					return false;
+				}
+			}
+			else{
+				for(int i = 0; i<ways;i++){
+					if(myCache[index][i].valid && myCache[index][i].tagAndIndex == tag){
+						return true;
+					}
+				}
+				// miss due to cold start or capacity
+				// find the first invalid line and replace it
+				for(int i = 0; i<ways;i++){
+					if(!myCache[index][i].valid){
+						myCache[index][i].valid = true;
+						myCache[index][i].tagAndIndex = tag;
+						return false;
+					}
+				}
+				// if we get here, we have a capacity miss and all lines are valid
+				// FIFO set replacement policy
+				myCache[index][0].tagAndIndex = tag;
+				return false;
+			}
+		}
+	private:
+		vector<vector<CacheLine>> myCache;
+		int setSizeInBytes;
+		int numberOfSets;
+		int lineSizeInBytes;
+		int ways;
+}
 
 /* The following implements a random number generator */
 unsigned int m_w = 0xABABAB55;    /* must not be zero, nor 0x464fffff */
