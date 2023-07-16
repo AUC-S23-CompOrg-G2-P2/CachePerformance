@@ -142,6 +142,7 @@ cacheResType cacheSimDM(unsigned int addr)
 {	
 	// This function accepts the memory address for the memory transaction and 
 	// returns whether it caused a cache miss or a cache hit
+	
 
 	// The current implementation assumes there is no cache; so, every transaction is a miss
 	return MISS;
@@ -161,6 +162,50 @@ char *msg[2] = {"Miss","Hit"};
 #define		NO_OF_Iterations	100		// Change to 1,000,000
 int main()
 {
+	vector<Cache> experiment1;
+	vector<Cache> experiment2;
+	vector<Cache> experiment3;
+	// experiment one will run for every possible line size (16 B, 32 B, 64 B, 128 B) with number of ways being 4
+	for(int i = 0; i<4;i++){
+		Cache myCache(16*(2^i),4);
+		experiment1.push_back(myCache);
+	}
+	// experiment two will run for every possible number of ways (1,2, 4, 8, 16) with line size being 32 B
+	for(int i = 0; i<5;i++){
+		Cache myCache(32,2^i);
+		experiment2.push_back(myCache);
+	}
+	// Now we will plot the hit ratio against line size for experiment 1
+	for(int i = 0; i<experiment1.size();i++){
+		unsigned int hit = 0;
+		cacheResType r;
+		unsigned int addr;
+		cout << "Effect of line size on hit ratio\n";
+		for(int inst=0;inst<NO_OF_Iterations;inst++)
+		{
+			addr = memGen2();
+			r = experiment1[i].read(addr);
+			if(r == HIT) hit++;
+			cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
+		}
+		cout << "Hit ratio of experiment 1 line size "<< 16*(2^i)" B = " << (100*hit/NO_OF_Iterations)<< "%"<<endl;
+	}
+	// Now we will plot the hit ratio against number of ways for experiment 2
+	for(int i = 0; i<experiment2.size();i++){
+		unsigned int hit = 0;
+		cacheResType r;
+		unsigned int addr;
+		cout << "Effect of number of ways on hit ratio\n";
+		for(int inst=0;inst<NO_OF_Iterations;inst++)
+		{
+			addr = memGen2();
+			r = experiment2[i].read(addr);
+			if(r == HIT) hit++;
+			cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
+		}
+		cout << "Hit ratio of experiment 2 number of ways "<< 2^i << " = " << (100*hit/NO_OF_Iterations)<< "%"<<endl;
+	}
+	cout << "--------------------------------------------------\n";
 	unsigned int hit = 0;
 	cacheResType r;
 	
