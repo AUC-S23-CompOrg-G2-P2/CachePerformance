@@ -7,7 +7,7 @@ using namespace std;
 
 #define		DBG				1
 #define		DRAM_SIZE		(64*1024*1024)
-#define		CACHE_SIZE		(64*1024)
+#define		CACHE_SIZE		(16*1024)
 
 enum cacheResType {MISS=0, HIT=1};
 
@@ -25,7 +25,7 @@ class Cache{
 		Cache(int lineSizeInBytes, int numberOfWays){
 			lineSize = lineSizeInBytes;
 			ways = numberOfWays;
-			setSizeInBytes = lineSizeInBytes*8*ways;
+			setSizeInBytes = lineSizeInBytes*ways;
 			numberOfSets = (CACHE_SIZE)/setSizeInBytes;
 			for(int i = 0; i<numberOfSets;i++){
 				// initialise each set
@@ -164,7 +164,6 @@ int main()
 	vector<Cache> experiment3;
 	// experiment one will run for every possible line size (16 B, 32 B, 64 B, 128 B) with number of ways being 4
 	for(int i = 0; i<4;i++){
-		int lineSize = 16*pow(2,i);
 		experiment1.push_back(Cache(16*pow(2,i),4));
 	}
 	// experiment two will run for every possible number of ways (1,2, 4, 8, 16) with line size being 32 B
