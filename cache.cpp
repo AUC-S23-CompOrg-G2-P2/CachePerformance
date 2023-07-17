@@ -12,12 +12,8 @@ using namespace std;
 enum cacheResType {MISS=0, HIT=1};
 
 struct CacheLine{
-	bool valid;
-	unsigned int tagAndIndex;
-	CacheLine(){
-		valid = false;
-		tagAndIndex = 0;
-	}
+	bool valid = false;
+	unsigned int tagAndIndex = 0;
 };
 
 class Cache{
@@ -156,12 +152,11 @@ cacheResType cacheSimFA(unsigned int addr)
 }
 const char *msg[2] = {"Miss","Hit"};
 
-#define		NO_OF_Iterations	1000000	// Change to 1,000,000
+#define		NO_OF_Iterations	10000000	// Change to 1,000,000
 int main()
 {
 	vector<Cache> experiment1;
 	vector<Cache> experiment2;
-	vector<Cache> experiment3;
 	// experiment one will run for every possible line size (16 B, 32 B, 64 B, 128 B) with number of ways being 4
 	for(int i = 0; i<4;i++){
 		experiment1.push_back(Cache(16*pow(2,i),4));
@@ -178,14 +173,16 @@ int main()
 		cout << "Effect of line size on hit ratio\n";
 		for(int inst=0;inst<NO_OF_Iterations;inst++)
 		{
-			addr = memGen2();
+			addr = memGen1();
 			// generate a random memmory address using one of the memGen functions
 			r = static_cast<cacheResType>(experiment1[i].read(addr));
 			if(r == HIT) hit++;
 			//cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
 		}
-		cout << "Hit ratio of experiment 1 line size "<< 16*pow(2,i)<<" B = " << (100*hit/NO_OF_Iterations)<< "%"<<endl;
+		cout << fixed << "Hit ratio of experiment 1 line size "<< 16*pow(2,i)<<" B = " << setprecision(2) <<((double)100*hit/(double)NO_OF_Iterations)<< "%"<<endl;
 	}
+	cout << "--------------------------------------------------\n";
+
 	// Now we will plot the hit ratio against number of ways for experiment 2
 	for(int i = 0; i<experiment2.size();i++){
 		unsigned int hit = 0;
@@ -194,12 +191,12 @@ int main()
 		cout << "Effect of number of ways on hit ratio\n";
 		for(int inst=0;inst<NO_OF_Iterations;inst++)
 		{
-			addr = memGen2();
+			addr = memGen1();
 			r = static_cast<cacheResType>(experiment2[i].read(addr));
 			if(r == HIT) hit++;
 			//cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
 		}
-		cout << "Hit ratio of experiment 2 number of ways "<< (int)(pow(2,i)) << " = " << (100*hit/NO_OF_Iterations)<< "%"<<endl;
+		cout << fixed << "Hit ratio of experiment 2 number of ways "<< (int)(pow(2,i)) << " = "<< setprecision(2)  << ((double)100*hit/(double)NO_OF_Iterations)<< "%"<<endl;
 	}
 	cout << "--------------------------------------------------\n";
 	unsigned int hit = 0;
