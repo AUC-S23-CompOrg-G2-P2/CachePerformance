@@ -71,9 +71,15 @@ class Cache{
 					}
 				}
 				// if we get here, we have a capacity miss and all lines are valid
-				// FIFO set replacement policy
-				myCache[index][0].tagAndIndex = tag;
+				// FIFO set replacement policy (pop the first item in the set and push the new one to the end)
+				myCache[index].erase(myCache[index].begin());
+				CacheLine myLine;
+				myLine.valid = true;
+				myLine.tagAndIndex = tag;
+				myCache[index].push_back(myLine);
 				return false;
+				
+				
 			}
 		}
 	private:
@@ -129,30 +135,9 @@ unsigned int memGen6()
 	return (addr+=32)%(64*4*1024);
 }
 
-
-// Direct Mapped Cache Simulator
-cacheResType cacheSimDM(unsigned int addr)
-{	
-	// This function accepts the memory address for the memory transaction and 
-	// returns whether it caused a cache miss or a cache hit
-	
-
-	// The current implementation assumes there is no cache; so, every transaction is a miss
-	return MISS;
-}
-
-// Fully Associative Cache Simulator
-cacheResType cacheSimFA(unsigned int addr)
-{	
-	// This function accepts the memory address for the read and 
-	// returns whether it caused a cache miss or a cache hit
-
-	// The current implementation assumes there is no cache; so, every transaction is a miss
-	return MISS;
-}
 const char *msg[2] = {"Miss","Hit"};
 
-#define		NO_OF_Iterations	10000000	// Change to 1,000,000
+#define		NO_OF_Iterations	1000000	// Change to 1,000,000
 int main()
 {
 	vector<Cache> experiment1;
@@ -173,13 +158,13 @@ int main()
 		cout << "Effect of line size on hit ratio\n";
 		for(int inst=0;inst<NO_OF_Iterations;inst++)
 		{
-			addr = memGen1();
+			addr = memGen2();
 			// generate a random memmory address using one of the memGen functions
 			r = static_cast<cacheResType>(experiment1[i].read(addr));
 			if(r == HIT) hit++;
 			//cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
 		}
-		cout << fixed << "Hit ratio of experiment 1 line size "<< 16*pow(2,i)<<" B = " << setprecision(2) <<((double)100*hit/(double)NO_OF_Iterations)<< "%"<<endl;
+		cout << "Hit ratio of experiment 1 line size "<< 16*pow(2,i)<<" B = " << fixed << setprecision(10) <<((double)100*hit/(double)NO_OF_Iterations)<< "%"<<endl;
 	}
 	cout << "--------------------------------------------------\n";
 
@@ -191,26 +176,13 @@ int main()
 		cout << "Effect of number of ways on hit ratio\n";
 		for(int inst=0;inst<NO_OF_Iterations;inst++)
 		{
-			addr = memGen1();
+			addr = memGen2();
 			r = static_cast<cacheResType>(experiment2[i].read(addr));
 			if(r == HIT) hit++;
 			//cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
 		}
-		cout << fixed << "Hit ratio of experiment 2 number of ways "<< (int)(pow(2,i)) << " = "<< setprecision(2)  << ((double)100*hit/(double)NO_OF_Iterations)<< "%"<<endl;
+		cout <<  "Hit ratio of experiment 2 number of ways "<< (int)(pow(2,i)) << " = "<< fixed << setprecision(10)  << ((double)(100*hit)/(double)NO_OF_Iterations)<< "%"<<endl;
 	}
 	cout << "--------------------------------------------------\n";
-	unsigned int hit = 0;
-	cacheResType r;
 	
-	unsigned int addr;
-	cout << "Direct Mapped Cache Simulator\n";
-
-	for(int inst=0;inst<NO_OF_Iterations;inst++)
-	{
-		addr = memGen2();
-		r = cacheSimDM(addr);
-		if(r == HIT) hit++;
-		//cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
-	}
-	cout << "Hit ratio = " << (100*hit/NO_OF_Iterations)<< endl;
 }
