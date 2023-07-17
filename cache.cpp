@@ -47,10 +47,6 @@ class Cache{
 			// Someone pls check my math
 			unsigned int index = (addr/lineSize)%numberOfSets;
 			unsigned int tag = addr/(lineSize*numberOfSets);
-			// special case for fully associative
-			if(numberOfSets == 1){
-				index = 0;
-			}
 			// special case for direct mapped
 			if(ways == 1){
 				if(myCache[index][0].valid && myCache[index][0].tagAndIndex == tag){
