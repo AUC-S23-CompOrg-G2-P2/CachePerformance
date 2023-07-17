@@ -137,9 +137,10 @@ unsigned int memGen6()
 
 const char *msg[2] = {"Miss","Hit"};
 
-#define		NO_OF_Iterations	1000000	// Change to 1,000,000
+#define		NO_OF_Iterations	1000000
 int main()
 {
+	/*
 	vector<Cache> experiment1;
 	vector<Cache> experiment2;
 	// experiment one will run for every possible line size (16 B, 32 B, 64 B, 128 B) with number of ways being 4
@@ -151,20 +152,20 @@ int main()
 		experiment2.push_back(Cache(32,pow(2,i)));
 	}
 	// Now we will plot the hit ratio against line size for experiment 1
+	cout << "Effect of line size on hit ratio\n";
 	for(int i = 0; i<experiment1.size();i++){
 		unsigned int hit = 0;
-		cacheResType r;
 		unsigned int addr;
-		cout << "Effect of line size on hit ratio\n";
 		for(int inst=0;inst<NO_OF_Iterations;inst++)
 		{
-			addr = memGen2();
-			// generate a random memmory address using one of the memGen functions
-			r = static_cast<cacheResType>(experiment1[i].read(addr));
-			if(r == HIT) hit++;
+			addr = memGen6();
+			if(experiment1[i].read(addr))
+				hit++;
+			//r = static_cast<cacheResType>(experiment1[i].read(addr));
+			//if(r == HIT) hit++;
 			//cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
 		}
-		cout << "Hit ratio of experiment 1 line size "<< 16*pow(2,i)<<" B = " << fixed << setprecision(10) <<((double)100*hit/(double)NO_OF_Iterations)<< "%"<<endl;
+		cout << "Hit ratio of experiment 1 line size "<< (int)16*pow(2,i)<<" B = " << fixed << setprecision(10) <<((double)100*hit/(NO_OF_Iterations)*1.0)<< "%"<<endl;
 	}
 	cout << "--------------------------------------------------\n";
 
@@ -176,13 +177,93 @@ int main()
 		cout << "Effect of number of ways on hit ratio\n";
 		for(int inst=0;inst<NO_OF_Iterations;inst++)
 		{
-			addr = memGen2();
-			r = static_cast<cacheResType>(experiment2[i].read(addr));
-			if(r == HIT) hit++;
+			addr = memGen6();
+			if(experiment2[i].read(addr))
+				hit++;
 			//cout <<"0x" << setfill('0') << setw(8) << hex << addr <<" ("<< msg[r] <<")\n";
 		}
 		cout <<  "Hit ratio of experiment 2 number of ways "<< (int)(pow(2,i)) << " = "<< fixed << setprecision(10)  << ((double)(100*hit)/(double)NO_OF_Iterations)<< "%"<<endl;
 	}
 	cout << "--------------------------------------------------\n";
+	*/
+	for(int line_size=16; line_size<=128;line_size*=2){
+		for(int i=1;i<=6;i++){
+			Cache mycache(line_size,4);		// Create a cache of size 16B, 32B, 64B, 128B
+			unsigned int hit = 0;
+			
+			// assign addr value from memGen number i using a switch case
+			
+			for(int inst=0;inst<NO_OF_Iterations;inst++)
+			{
+				unsigned int addr;
+			switch (i)
+			{
+			case 1:
+				addr = memGen1();
+				break;
+			case 2:
+				addr = memGen2();
+				break;
+			case 3:
+				addr = memGen3();
+				break;
+			case 4:
+				addr = memGen4();
+				break;
+			case 5:
+				addr = memGen5();
+				break;
+			case 6:
+				addr = memGen6();
+				break;
+			default:
+				break;
+			}
+				if(mycache.read(addr))
+					hit++;
+			}
+			cout << "Hit ratio of experiment 1 line size "<< line_size<<" B and memGen"<<i<<" = " << fixed << setprecision(10) <<((double)100*hit/(NO_OF_Iterations)*1.0)<< "%"<<endl;
+		}
+	}
+	// Now we will plot the hit ratio against number of ways for experiment 2
+	for(int ways=1; ways<=16;ways*=2){
+		for(int i=1;i<=6;i++){
+			Cache mycache(32,ways);		// Create a cache of size 16B, 32B, 64B, 128B
+			unsigned int hit = 0;
+			
+			// assign addr value from memGen number i using a switch case
+			
+			for(int inst=0;inst<NO_OF_Iterations;inst++)
+			{
+				unsigned int addr;
+			switch (i)
+			{
+			case 1:
+				addr = memGen1();
+				break;
+			case 2:
+				addr = memGen2();
+				break;
+			case 3:
+				addr = memGen3();
+				break;
+			case 4:
+				addr = memGen4();
+				break;
+			case 5:
+				addr = memGen5();
+				break;
+			case 6:
+				addr = memGen6();
+				break;
+			default:
+				break;
+			}
+				if(mycache.read(addr))
+					hit++;
+			}
+			cout << "Hit ratio of experiment 2 number of ways "<< ways << " and memGen"<<i<<" = "<< fixed << setprecision(10)  << ((double)(100*hit)/(double)NO_OF_Iterations)<< "%"<<endl;
+		}
+	}
 	
 }
