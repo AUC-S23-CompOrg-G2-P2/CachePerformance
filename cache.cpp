@@ -124,8 +124,13 @@ unsigned int memGen6()
 int main()
 {
 	// open a csv to write the results to
-	ofstream exp1File("exp1Results.csv");
-	ofstream exp2File("exp2Results.csv");
+	ofstream exp1File("./results/exp1Results.csv");
+	ofstream exp2File("./results/exp2Results.csv");
+	// check files opened successfully
+	if(!exp1File.is_open() || !exp2File.is_open()){
+		cout << "Error opening file" << endl;
+		return 1;
+	}
 	exp1File << "Line Size, memGen1, memGen2, memGen3, memGen4, memGen5, memGen6" << endl;
 
 	// Now we will plot the hit ratio against line size for experiment 1
