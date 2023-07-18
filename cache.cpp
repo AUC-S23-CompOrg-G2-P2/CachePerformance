@@ -2,6 +2,8 @@
 #include <iomanip>
 #include <vector>
 #include <cmath>
+#include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -121,8 +123,14 @@ unsigned int memGen6()
 #define		NO_OF_Iterations	1000000
 int main()
 {
+	// open a csv to write the results to
+	ofstream exp1File("exp1Results.csv");
+	ofstream exp2File("exp2Results.csv");
+	exp1File << "Line Size, memGen1, memGen2, memGen3, memGen4, memGen5, memGen6" << endl;
+
 	// Now we will plot the hit ratio against line size for experiment 1
 	for(int line_size=16; line_size<=128;line_size*=2){
+		exp1File << line_size ;
 		for(int i=1;i<=6;i++){
 			Cache mycache(line_size,4);		// Create a cache of size 16B, 32B, 64B, 128B
 			unsigned int hit = 0;			
@@ -156,12 +164,16 @@ int main()
 					hit++;
 			}
 			cout << "Hit ratio of experiment 1 line size "<< line_size<<" B and memGen"<<i<<" = " << fixed << setprecision(10) <<((double)100*hit/(NO_OF_Iterations)*1.0)<< "%"<<endl;
+			exp1File << ","  << fixed << setprecision(10) <<((double)100*hit/(NO_OF_Iterations)*1.0) ;
 		}
+		exp1File << endl;
 	}
 		cout << "\n\n--------------------------------------------------\n\n";
 
 	// Now we will plot the hit ratio against number of ways for experiment 2
+	exp2File << "Number of ways, memGen1, memGen2, memGen3, memGen4, memGen5, memGen6" << endl;
 	for(int ways=1; ways<=16;ways*=2){
+		exp2File << ways ;
 		for(int i=1;i<=6;i++){
 			Cache mycache(32,ways);
 			unsigned int hit = 0;			
@@ -195,7 +207,11 @@ int main()
 					hit++;
 			}
 			cout << "Hit ratio of experiment 2 number of ways "<< ways << " and memGen"<<i<<" = "<< fixed << setprecision(10)  << ((double)(100*hit)/(double)NO_OF_Iterations)<< "%"<<endl;
+			exp2File << ","  << fixed << setprecision(10) <<((double)100*hit/(NO_OF_Iterations)*1.0) ;
 		}
+		exp2File << endl;
 	}
-	
+	exp1File.close();
+	exp2File.close();
+	return 0;
 }
