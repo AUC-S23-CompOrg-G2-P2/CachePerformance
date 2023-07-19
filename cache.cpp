@@ -11,8 +11,6 @@ using namespace std;
 #define		DRAM_SIZE		(64*1024*1024)
 #define		CACHE_SIZE		(16*1024)
 
-enum cacheResType {MISS=0, HIT=1};
-
 struct CacheLine{
 	bool valid = false;
 	unsigned int tagAndIndex = 0;
