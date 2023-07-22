@@ -83,7 +83,7 @@ int main(){
     int misses = 0;
     int count = 0;
     int addr = 0;
-    for(int step = 1; step<65;step++){
+    for(int step = 1; step<65;step*=2){
         while(count++ < 1000000){
             if(myCache.read(addr)){
                 hits++;
@@ -93,10 +93,8 @@ int main(){
             addr = memoryGenWithStep(addr,step);
         }
         cout << "Step size: " << step << endl;
-        int calculatedMisses = (step-1.0)*(floor((64.0/(double)step)))+64%step;
-        int calculatedHits = ceil(64.0/((double)step));
-        int virtualLineSize = floor(64.0/((double)step+64%step));
-        cout << "Expected hit rate: " << (double) (calculatedHits)/(double(calculatedHits+calculatedMisses)) << "\t";
+        int virtualLineSize = 64.0/(double)step;
+        cout << "Expected hit rate: " << (double) (virtualLineSize-1)/(double(virtualLineSize)) << "\t";
         cout << "Hit rate: " << (double)hits/(double)(hits+misses) << endl;
         hits = 0;
         misses = 0;
