@@ -101,27 +101,5 @@ int main(){
         numberOfHits = 0;
         numberOfMisses = 0;
     }
-    // Print a horizontal line
-    cout << "----------------------------------------" << endl;
-    // We will now do the same but for increasing numbers of ways
-    lineSize = 4;
-    numberOfWays = 1;
-    numberOfHits = 0;
-    numberOfMisses = 0;
-    for(int i = 0; i<numberOfIterations;i++){
-        Cache myCache(lineSize,numberOfWays);
-        for(int j = 0; j<numberOfAddresses;j++){
-            if(myCache.read(sequentialMemoryGenerator())){
-                numberOfHits++;
-            }else{
-                numberOfMisses++;
-            }
-        }
-        cout << "Line size: " << lineSize << " Number of ways: " << numberOfWays << endl << "Expected hit rate: "<< (double)(lineSize-1)/(double)(lineSize) << " Hit rate: " << (double)numberOfHits/(double)(numberOfHits+numberOfMisses) << endl;
-        numberOfWays*=2;
-        numberOfHits = 0;
-        numberOfMisses = 0;
-    }
-    
-    return 0;
+	return 0;
 }
